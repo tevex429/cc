@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your Cards</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --border: #e4e7ec;
+    --text: #101828;
+    --muted: #667085;
+    --accent: #3538cd;
+    --accent-soft: #eef0ff;
+    --green: #067647;
+    --green-bg: #ecfdf3;
+    --amber: #b54708;
+    --amber-bg: #fffaeb;
+    --slate: #475467;
+    --slate-bg: #f2f4f7;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 4px 16px rgba(16, 24, 40, .06);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .shell {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 32px 20px 64px;
+  }
+
+  /* ---------- Header ---------- */
+  .page-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .page-head h1 {
+    font-size: 24px;
+    line-height: 1.25;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  .page-head p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .btn-primary {
+    appearance: none;
+    border: 0;
+    background: var(--accent);
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .15s ease;
+  }
+  .btn-primary:hover { background: #2a2da8; }
+  .btn-primary:focus-visible,
+  .btn-ghost:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ---------- Grid ---------- */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+
+  /* ---------- Card tile ---------- */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card__visual {
+    position: relative;
+    aspect-ratio: 1.586 / 1;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: #fff;
+    background: linear-gradient(135deg, #1f2a44 0%, #3d4a6b 100%);
+  }
+  .card__visual[data-brand="mastercard"] {
+    background: linear-gradient(135deg, #2b2b33 0%, #4a4a58 100%);
+  }
+  .card__visual[data-brand="amex"] {
+    background: linear-gradient(135deg, #1c4f8b 0%, #2f7fc4 100%);
+  }
+  .card.is-frozen .card__visual { filter: saturate(.25) brightness(.92); }
+  .card.is-expired .card__visual { filter: grayscale(.75) brightness(.9); }
+
+  .card__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .card__label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.75);
+    margin: 0;
+  }
+  .brand-mark {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    opacity: .95;
+  }
+  .brand-mark--mc {
+    display: flex;
+    gap: -6px;
+    align-items: center;
+  }
+  .brand-mark--mc i {
+    width: 15px; height: 15px;
+    border-radius: 50%;
+    display: block;
+    background: #eb001b;
+  }
+  .brand-mark--mc i + i {
+    background: #f79e1b;
+    margin-left: -6px;
+    mix-blend-mode: screen;
+  }
+
+  .card__number {
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", Menlo, Consolas, monospace;
+    font-size: clamp(15px, 4.2vw, 18px);
+    letter-spacing: .08em;
+    margin: 0;
+    white-space: nowrap;
+  }
+  .card__number .mask { opacity: .55; }
+  .card__number .last4 { font-weight: 600; }
+
+  .card__bottom {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 12px;
+  }
+  .card__meta-label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    opacity: .65;
+    margin-bottom: 2px;
+  }
+  .card__meta-value { font-weight: 600; letter-spacing: .02em; }
+
+  .country {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,.16);
+    border-radius: 999px;
+    padding: 4px 10px 4px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    backdrop-filter: blur(4px);
+  }
+  .country .flag { font-size: 13px; line-height: 1; }
+
+  /* ---------- Card footer ---------- */
+  .card__foot {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+  .status::before {
+    content: "";
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .status--active  { color: var(--green); background: var(--green-bg); }
+  .status--frozen  { color: var(--slate); background: var(--slate-bg); }
+  .status--expired { color: var(--amber); background: var(--amber-bg); }
+
+  .card__actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .btn-ghost {
+    appearance: none;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--slate);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: background .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .btn-ghost:hover { background: var(--bg); border-color: #d0d5dd; }
+  .btn-ghost[aria-pressed="true"] { color: var(--accent); border-color: #c7caff; background: var(--accent-soft); }
+  .btn-ghost:disabled { opacity: .5; cursor: not-allowed; }
+
+  .default-tag {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 6px;
+    padding: 3px 8px;
+  }
+
+  /* ---------- Empty / loading ---------- */
+  .empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 56px 24px;
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    color: var(--muted);
+  }
+  .empty strong { display: block; color: var(--text); margin-bottom: 4px; }
+
+  .skeleton {
+    height: 210px;
+    border-radius: var(--radius);
+    background: linear-gradient(90deg, #eceef2 25%, #f5f6f8 37%, #eceef2 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+  }
+  @keyframes shimmer {
+    0%   { background-position: 100% 0; }
+    100% { background-position: 0 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton { animation: none; }
+  }
+
+  @media (max-width: 480px) {
+    .shell { padding: 24px 14px 48px; }
+    .page-head h1 { font-size: 20px; }
+    .btn-primary { width: 100%; }
+    .cards-grid { gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<main class="shell">
+  <header class="page-head">
+    <div>
+      <h1>Your cards</h1>
+      <p>Virtual cards issued to your account. Only the last four digits are stored or displayed.</p>
+    </div>
+    <button class="btn-primary" id="newCardBtn" type="button">Create a card</button>
+  </header>
+
+  <section class="cards-grid" id="cardsGrid" aria-live="polite" aria-busy="true">
+    <div class="skeleton"></div>
+    <div class="skeleton"></div>
+    <div class="skeleton"></div>
+  </section>
+</main>
+
+<script>
+/* ============================================================
+   Data layer
+   ------------------------------------------------------------
+   In production, GET /api/cards must:
+     - authenticate the session
+     - resolve the caller's cardholder ID
+     - call the issuer (Stripe Issuing / Lithic / Marqeta)
+     - return ONLY: id, brand, last4, expMonth, expYear,
+       status, country, label, isDefault
+
+   The issuer API never returns the full PAN or CVC for
+   existing cards, and this endpoint must never forward them.
+   ============================================================ */
+
+const MOCK_CARDS = [
+  { id: 'card_1', brand: 'visa',       last4: '4242', expMonth: 9,  expYear: 2027,
+    status: 'active',  country: 'US', label: 'Subscriptions', isDefault: true  },
+  { id: 'card_2', brand: 'mastercard', last4: '8210', expMonth: 3,  expYear: 2026,
+    status: 'frozen',  country: 'GB', label: 'Travel',        isDefault: false },
+  { id: 'card_3', brand: 'amex',       last4: '0005', expMonth: 12, expYear: 2025,
+    status: 'expired', country: 'NG', label: 'Contractors',   isDefault: false }
+];
+
+async function loadCards() {
+  // return fetch('/api/cards', { credentials: 'same-origin' }).then(r => r.json());
+  await new Promise(res => setTimeout(res, 450));
+  return structuredClone(MOCK_CARDS);
+}
+
+async function patchCard(id, patch) {
+  // return fetch(`/api/cards/${id}`, {
+  //   method: 'PATCH',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   credentials: 'same-origin',
+  //   body: JSON.stringify(patch)
+  // }).then(r => r.json());
+  const card = state.cards.find(c => c.id === id);
+  Object.assign(card, patch);
+  return card;
+}
+
+async function deleteCard(id) {
+  // return fetch(`/api/cards/${id}`, { method: 'DELETE', credentials: 'same-origin' });
+  state.cards = state.cards.filter(c => c.id !== id);
+  if (state.cards.length && !state.cards.some(c => c.isDefault)) {
+    state.cards[0].isDefault = true;
+  }
+}
+
+/* ============================================================
+   Helpers
+   ============================================================ */
+
+const state = { cards: [] };
+
+const BRANDS = {
+  visa:       { name: 'Visa',       mark: '<span class="brand-mark">VISA</span>' },
+  mastercard: { name: 'Mastercard', mark: '<span class="brand-mark brand-mark--mc" aria-hidden="true"><i></i><i></i></span>' },
+  amex:       { name: 'American Express', mark: '<span class="brand-mark">AMEX</span>' }
+};
+
+const STATUS_TEXT = { active: 'Active', frozen: 'Frozen', expired: 'Expired' };
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[ch]));
+}
+
+function maskPan(last4) {
+  return `<span class="mask">•••• •••• ••••</span> <span class="last4">${escapeHtml(last4)}</span>`;
+}
+
+function formatExpiry(m, y) {
+  return `${String(m).padStart(2, '0')}/${String(y).slice(-2)}`;
+}
+
+// ISO 3166-1 alpha-2 → regional indicator emoji
+function countryFlag(code) {
+  if (!/^[A-Za-z]{2}$/.test(code || '')) return '🌐';
+  const base = 0x1F1E6;
+  return String.fromCodePoint(
+    base + code.toUpperCase().charCodeAt(0) - 65,
+    base + code.toUpperCase().charCodeAt(1) - 65
+  );
+}
+
+function isExpired(card) {
+  if (card.status === 'expired') return true;
+  const now = new Date();
+  const end = new Date(card.expYear, card.expMonth, 1); // first day after expiry month
+  return end <= now;
+}
+
+/* ============================================================
+   Render
+   ============================================================ */
+
+function render() {
+  const grid = document.getElementById('cardsGrid');
+  grid.setAttribute('aria-busy', 'false');
+
+  if (!state.cards.length) {
+    grid.innerHTML = `
+      <div class="empty">
+        <strong>No cards yet</strong>
+        Create a virtual card to start spending from your balance.
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = state.cards.map(cardTemplate).join('');
+  bindActions();
+}
+
+function cardTemplate(card) {
+  const expired = isExpired(card);
+  const effectiveStatus = expired ? 'expired' : card.status;
+  const brand = BRANDS[card.brand] || { name: card.brand, mark: '' };
+  const flag = countryFlag(card.country);
+
+  return `
+  <article class="card ${effectiveStatus === 'frozen' ? 'is-frozen' : ''} ${effectiveStatus === 'expired' ? 'is-expired' : ''}"
+           data-id="${escapeHtml(card.id)}"
+           aria-label="${escapeHtml(brand.name)} card ending ${escapeHtml(card.last4)}, ${STATUS_TEXT[effectiveStatus]}">
+
+    <div class="card__visual" data-brand="${escapeHtml(card.brand)}">
+      <div class="card__top">
+        <p class="card__label">${escapeHtml(card.label || 'Virtual card')}</p>
+        ${brand.mark}
+      </div>
+
+      <p class="card__number" aria-label="Card number ending ${escapeHtml(card.last4)}">
+        ${maskPan(card.last4)}
+      </p>
+
+      <div class="card__bottom">
+        <div>
+          <span class="card__meta-label">Expires</span>
+          <span class="card__meta-value">${formatExpiry(card.expMonth, card.expYear)}</span>
+        </div>
+        <span class="country" title="${escapeHtml(card.country)}">
+          <span class="flag" aria-hidden="true">${flag}</span>
+          ${escapeHtml(card.country)}
+        </span>
+      </div>
+    </div>
+
+    <div class="card__foot">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <span class="status status--${effectiveStatus}">${STATUS_TEXT[effectiveStatus]}</span>
+        ${card.isDefault ? '<span class="default-tag">Default</span>' : ''}
+      </div>
+
+      <div class="card__actions">
+        ${!card.isDefault && !expired
+          ? `<button class="btn-ghost" data-action="default" type="button">Set default</button>`
+          : ''}
+        ${!expired
+          ? `<button class="btn-ghost" data-action="freeze"
+                     aria-pressed="${card.status === 'frozen'}"
+                     type="button">${card.status === 'frozen' ? 'Unfreeze' : 'Freeze'}</button>`
+          : ''}
+        <button class="btn-ghost" data-action="delete" type="button"
+                aria-label="Remove card ending ${escapeHtml(card.last4)}">Remove</button>
+      </div>
+    </div>
+  </article>`;
+}
+
+/* ============================================================
+   Actions
+   ============================================================ */
+
+function bindActions() {
+  document.querySelectorAll('.card').forEach(el => {
+    const id = el.dataset.id;
+
+    el.querySelectorAll('[data-action]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const action = btn.dataset.action;
+        const card = state.cards.find(c => c.id === id);
+        if (!card) return;
+
+        btn.disabled = true;
+        try {
+          if (action === 'freeze') {
+            const next = card.status === 'frozen' ? 'active' : 'frozen';
+            await patchCard(id, { status: next });
+          } else if (action === 'default') {
+            state.cards.forEach(c => { c.isDefault = false; });
+            await patchCard(id, { isDefault: true });
+          } else if (action === 'delete') {
+            if (!confirm(`Remove the card ending ${card.last4}? This can't be undone.`)) {
+              btn.disabled = false;
+              return;
+            }
+            await deleteCard(id);
+          }
+          render();
+        } catch (err) {
+          btn.disabled = false;
+          alert('Something went wrong. Please try again.');
+          console.error(err);
+        }
+      });
+    });
+  });
+}
+
+document.getElementById('newCardBtn').addEventListener('click', () => {
+  // Route to your issuer flow — never collect a PAN in your own UI.
+  alert('Redirect to the card creation flow (issuer-hosted).');
+});
+
+/* ---------- Boot ---------- */
+(async function init() {
+  try {
+    state.cards = await loadCards();
+    render();
+  } catch (err) {
+    console.error(err);
+    document.getElementById('cardsGrid').innerHTML =
+      `<div class="empty"><strong>Couldn't load your cards</strong>Please refresh the page.</div>`;
+  }
+})();
+</script>
+</body>
+</html>
